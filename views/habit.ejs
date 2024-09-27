@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<h1><%= habit.name %> - <%= habit.frequency %></h1>
+
+<h3>Sub-tasks</h3>
+<ul>
+    <% habit.subTasks.forEach(subTask => { %>
+        <% if (!subTask.completed) { %>
+            <li>
+                <%= subTask.name %> -
+                <span>Pending</span>
+                <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/toggle" method="POST" style="display: inline;">
+                    <button type="submit">Complete</button>
+                </form>
+            </li>
+        <% } %>
+    <% }) %>
+</ul>
+
+<a href="/">Back to Home</a>
+</body>
+</html>

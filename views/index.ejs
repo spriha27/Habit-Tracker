@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Overall page background gradient */
+        body {
+            background: linear-gradient(135deg, #ffad66, #d2691e);
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container background with gradient */
+        .container {
+            background: linear-gradient(135deg, #fff3e0, #ffdab9);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        /* Button styles with gradient */
+        .btn-custom {
+            background: linear-gradient(135deg, #d2691e, #ff8c00);
+            border: none;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #b94e00, #ff7518);
+            color: white;
+        }
+
+        /* List item styles */
+        .list-group-item {
+            background: linear-gradient(135deg, #ffe4b2, #ffcc80);
+            border: 1px solid #d2691e;
+            color: #4b2e2b;
+        }
+
+        /* Completed sub-task background */
+        .completed-subtask {
+            background: linear-gradient(135deg, #ffaf80, #d2691e);
+            color: #fff;
+        }
+
+        .btn-link-custom {
+            background: linear-gradient(135deg, #ff7518, #d2691e);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn-link-custom:hover {
+            background: linear-gradient(135deg, #d2691e, #ff8c00);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5 p-4">
+    <h1 class="text-center mb-4" style="color: #d2691e;">Habit Tracker</h1>
+    <h3 class="text-center mb-4" style="color: #ff7518;">Tasks left to complete today: <span class="badge bg-danger"><%= tasksLeft %></span></h3>
+
+    <!-- Form to Add a New Habit -->
+    <h2 class="text-warning">Add a New Habit</h2>
+    <form action="/habit" method="POST" id="habitForm" class="mb-4">
+        <div class="mb-3">
+            <input type="text" class="form-control" name="name" placeholder="Habit name" required />
+        </div>
+        <div class="mb-3">
+            <select name="frequency" class="form-select" required>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+            </select>
+        </div>
+        <div id="subtasksContainer" class="mb-3">
+            <h4>Add Subtasks</h4>
+            <div class="input-group mb-2">
+                <input type="text" id="subtaskInput" class="form-control" placeholder="Subtask name" />
+                <button type="button" id="addSubtaskButton" class="btn btn-custom">Add Subtask</button>
+            </div>
+            <ul id="subtaskList" class="list-group"></ul>
+        </div>
+        <input type="hidden" name="subTasks" id="subTasksField">
+        <button type="submit" class="btn btn-custom">Add Habit</button>
+    </form>
+
+    <h2 class="mb-3">My Habits</h2>
+    <ul class="list-group">
+        <% habits.forEach(habit => { %>
+            <li class="list-group-item">
+                <strong><%= habit.name %></strong> - <%= habit.frequency %>
+                <ul class="list-group mt-2">
+                    <% habit.subTasks.forEach(subTask => { %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center <%= subTask.completed ? 'completed-subtask' : '' %>">
+                            <%= subTask.name %>
+                            <% if (!subTask.completed) { %>
+                                <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/toggle" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-success">Complete</button>
+                                </form>
+                            <% } else { %>
+                                <span>Completed</span>
+                            <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            </li>
+        <% }) %>
+    </ul>
+
+    <div class="mt-4">
+        <a href="/finished" class="btn-link-custom">View Finished Habits</a>
+        <a href="/missed" class="btn-link-custom">View Missed Habits</a>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script>
+    const subTasks = [];
+    const addSubtaskButton = document.getElementById('addSubtaskButton');
+    const subtaskInput = document.getElementById('subtaskInput');
+    const subtaskList = document.getElementById('subtaskList');
+    const subTasksField = document.getElementById('subTasksField');
+
+    addSubtaskButton.addEventListener('click', () => {
+        const subtaskName = subtaskInput.value.trim();
+        if (subtaskName) {
+            subTasks.push(subtaskName);
+            const li = document.createElement('li');
+            li.textContent = subtaskName;
+            li.className = 'list-group-item';
+            subtaskList.appendChild(li);
+            subtaskInput.value = '';
+            subTasksField.value = subTasks.join(',');
+        }
+    });
+</script>
+</body>
+</html>
