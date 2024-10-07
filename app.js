@@ -196,4 +196,5 @@ cron.schedule('0 0 * * *', async () => {
     });
 });
 
-app.listen(3300, () => console.log('Server started on http://localhost:3300'));
+const PORT = process.env.PORT || 3300;
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
