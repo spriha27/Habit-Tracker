@@ -9,9 +9,11 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-mongoose.connect('mongodb://127.0.0.1:27017/habitTrackerDB', {
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/habitTrackerDB';
+mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     serverSelectionTimeoutMS: 30000,
+    useUnifiedTopology: true,
 });
 
 // Home Page: List all habits and display the counter for tasks left
