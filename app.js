@@ -3,10 +3,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cron = require('node-cron');
-const Habit = require('./models/Habit');const { Parser } = require('json2csv');
+const Habit = require('./models/Habit');
+const {Parser} = require('json2csv');
 const app = express();
 app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/habitTrackerDB';
@@ -14,7 +15,8 @@ mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     serverSelectionTimeoutMS: 30000,
     useUnifiedTopology: true,
-});
+}).then(() => console.log('MongoDB connected'))
+    .catch(err => console.log(err));
 
 // Home Page: List all habits and display the counter for tasks left
 app.get('/', async (req, res) => {
@@ -42,23 +44,22 @@ app.get('/', async (req, res) => {
         }
     });
 
-    res.render('index', { habits: habitsToDisplay, tasksLeft });
+    res.render('index', {habits: habitsToDisplay, tasksLeft});
 });
-
 
 
 // Route to view missed habits
 app.get('/missed', async (req, res) => {
-    const missedHabits = await Habit.find({ missed: true });
-    res.render('missed', { missedHabits });
+    const missedHabits = await Habit.find({missed: true});
+    res.render('missed', {missedHabits});
 });
 
 // Export missed habits to CSV
 app.get('/missed/export', async (req, res) => {
-    const missedHabits = await Habit.find({ missed: true });
+    const missedHabits = await Habit.find({missed: true});
 
     const fields = ['name', 'frequency', 'date'];
-    const parser = new Parser({ fields });
+    const parser = new Parser({fields});
     const csv = parser.parse(missedHabits);
 
     res.header('Content-Type', 'text/csv');
@@ -69,11 +70,11 @@ app.get('/missed/export', async (req, res) => {
 
 // Create a new habit
 app.post('/habit', async (req, res) => {
-    const { name, frequency, subTasks } = req.body;
+    const {name, frequency, subTasks} = req.body;
     const habit = new Habit({
         name,
         frequency,
-        subTasks: subTasks.split(',').map((task) => ({ name: task.trim() })),
+        subTasks: subTasks.split(',').map((task) => ({name: task.trim()})),
     });
     await habit.save();
     res.redirect('/');
@@ -104,13 +105,13 @@ app.post('/habit/:habitId/subtask/:subTaskId/toggle', async (req, res) => {
 // View a specific habit with subtasks
 app.get('/habit/:id', async (req, res) => {
     const habit = await Habit.findById(req.params.id);
-    res.render('habit', { habit });
+    res.render('habit', {habit});
 });
 
 // Dashboard to view missed habits
 app.get('/dashboard', async (req, res) => {
-    const missedHabits = await Habit.find({ missed: true });
-    res.render('dashboard', { missedHabits });
+    const missedHabits = await Habit.find({missed: true});
+    res.render('dashboard', {missedHabits});
 });
 
 // View finished habits
@@ -134,7 +135,7 @@ app.get('/finished', async (req, res) => {
         }
     });
 
-    res.render('finished', { finishedHabits });
+    res.render('finished', {finishedHabits});
 });
 
 // Undo the completion of a habit
@@ -171,7 +172,7 @@ cron.schedule('0 0 * * *', async () => {
     console.log('Running daily reset job at 12 AM');
 
     // Find and reset all daily habits
-    const dailyHabits = await Habit.find({ frequency: 'daily' });
+    const dailyHabits = await Habit.find({frequency: 'daily'});
     dailyHabits.forEach(async (habit) => {
         habit.subTasks.forEach(subTask => {
             subTask.completed = false;
@@ -181,7 +182,7 @@ cron.schedule('0 0 * * *', async () => {
     });
 
     // Find weekly habits that should reset today
-    const weeklyHabits = await Habit.find({ frequency: 'weekly' });
+    const weeklyHabits = await Habit.find({frequency: 'weekly'});
     const today = new Date();
 
     weeklyHabits.forEach(async (habit) => {
