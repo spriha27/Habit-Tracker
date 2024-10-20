@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Subtask</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Edit Subtask</h1>
+  <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/edit" method="POST">
+    <label for="name">Subtask Name:</label>
+    <input type="text" name="name" id="name" value="<%= subTask.name %>" required>
+    
+    <button type="submit" class="btn btn-primary">Update Subtask</button>
+    <a href="/" class="btn btn-secondary">Cancel</a> <!-- Cancel button -->
+  </form>
+</body>
+</html>

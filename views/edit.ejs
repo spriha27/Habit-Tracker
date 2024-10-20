@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Habit</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Edit Habit</h1>
+  <form action="/habit/<%= habit._id %>/edit" method="POST">
+    <label for="name">Habit Name:</label>
+    <input type="text" name="name" id="name" value="<%= habit.name %>" required>
+
+    <label for="frequency">Frequency:</label>
+    <select name="frequency" id="frequency">
+      <option value="daily" <%= habit.frequency === 'daily' ? 'selected' : '' %>>Daily</option>
+      <option value="weekly" <%= habit.frequency === 'weekly' ? 'selected' : '' %>>Weekly</option>
+    </select>
+
+    <h2>Edit Subtasks</h2>
+    <ul>
+      <% habit.subTasks.forEach(function (subTask, index) { %>
+        <li>
+          <input type="text" name="subTasks[<%= index %>][name]" value="<%= subTask.name %>" required>
+          <input type="checkbox" name="subTasks[<%= index %>][completed]" <%= subTask.completed ? 'checked' : '' %>> Completed
+        </li>
+      <% }); %>
+    </ul>
+
+    <button type="submit" class="btn btn-primary">Update Habit</button>
+    <a href="/" class="btn btn-secondary">Cancel</a> <!-- Cancel button -->
+  </form>
+</body>
+</html>

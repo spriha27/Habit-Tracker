@@ -94,17 +94,39 @@
         <% habits.forEach(habit => { %>
             <li class="list-group-item">
                 <strong><%= habit.name %></strong> - <%= habit.frequency %>
+
+                <!-- Complete and Delete buttons for the Habit -->
+                <div class="d-flex justify-content-end">
+                    <form action="/habit/<%= habit._id %>/complete" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success me-2">Complete Habit</button>
+                    </form>
+                    <form action="/habit/<%= habit._id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this habit?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete Habit</button>
+                    </form>
+                </div>
+
+                <!-- List of subtasks for the habit -->
                 <ul class="list-group mt-2">
                     <% habit.subTasks.forEach(subTask => { %>
                         <li class="list-group-item d-flex justify-content-between align-items-center <%= subTask.completed ? 'completed-subtask' : '' %>">
                             <%= subTask.name %>
-                            <% if (!subTask.completed) { %>
-                                <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/toggle" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-success">Complete</button>
-                                </form>
-                            <% } else { %>
-                                <span>Completed</span>
-                            <% } %>
+                            <div>
+                                <% if (!subTask.completed) { %>
+                                    <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/complete" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">Complete</button>
+                                    </form>
+                                    <!-- Delete button for each subtask -->
+                                    <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this subtask?');">
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                <% } else { %>
+                                    <span>Completed</span>
+                                    <!-- Undo button for each completed subtask -->
+                                    <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/undo" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-warning">Undo</button>
+                                    </form>
+                                <% } %>
+                            </div>
                         </li>
                     <% }) %>
                 </ul>
@@ -125,9 +147,26 @@
     const subtaskInput = document.getElementById('subtaskInput');
     const subtaskList = document.getElementById('subtaskList');
     const subTasksField = document.getElementById('subTasksField');
+    const habitForm = document.getElementById('habitForm');
 
+    // Add subtask when the button is clicked
     addSubtaskButton.addEventListener('click', () => {
+        addSubtask();
+    });
+
+    // Add subtask when the Enter key is pressed in the subtask input
+    subtaskInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            addSubtask(); // Add subtask instead
+        }
+    });
+
+    // Function to add a subtask
+    function addSubtask() {
         const subtaskName = subtaskInput.value.trim();
+
+        // Validate if the subtask input is not empty
         if (subtaskName) {
             subTasks.push(subtaskName);
             const li = document.createElement('li');
@@ -136,6 +175,16 @@
             subtaskList.appendChild(li);
             subtaskInput.value = '';
             subTasksField.value = subTasks.join(',');
+        } else {
+            alert('Subtask name cannot be empty'); // Display an alert if the subtask is empty
+        }
+    }
+
+    // Prevent form submission if there are no valid subtasks
+    habitForm.addEventListener('submit', (e) => {
+        if (subTasks.length === 0) {
+            e.preventDefault(); // Stop form submission
+            alert('Habit must have at least one valid subtask'); // Show an alert if there are no valid subtasks
         }
     });
 </script>

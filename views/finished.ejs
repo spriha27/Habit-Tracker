@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finished Habits</title>
+    <link rel="stylesheet" href="/style.css">
     <style>
         /* Overall page background gradient */
         body {
@@ -22,6 +25,7 @@
             background: linear-gradient(135deg, #d2691e, #ff8c00);
             border: none;
             color: white;
+            padding: 10px 20px;
             transition: background 0.3s;
         }
 
@@ -36,61 +40,53 @@
             border: 1px solid #d2691e;
             color: #4b2e2b;
         }
-
-        /* Completed sub-task background */
-        .completed-subtask {
-            background: linear-gradient(135deg, #ffaf80, #d2691e);
-            color: #fff;
-        }
-
-        .btn-link-custom {
-            background: linear-gradient(135deg, #ff7518, #d2691e);
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s;
-        }
-
-        .btn-link-custom:hover {
-            background: linear-gradient(135deg, #d2691e, #ff8c00);
-            color: white;
-        }
     </style>
 </head>
 <body>
-<div class="container mt-5 p-4">
-    <h1 class="text-center mb-4" style="color: #d2691e;">Finished Habits</h1>
+  <div class="container mt-5 p-4">
+    <h1 class="text-center mb-4" style="color: #d2691e;">Finished Habits and Subtasks</h1>
 
-    <ul class="list-group">
-        <% finishedHabits.forEach(habit => { %>
+    <% if (finishedHabits.length === 0 && finishedSubtasks.length === 0) { %>
+      <p class="text-center">No finished habits or subtasks yet!</p>
+    <% } else { %>
+
+      <!-- Finished Habits -->
+      <% if (finishedHabits.length > 0) { %>
+        <h2>Finished Habits</h2>
+        <ul class="list-group">
+          <% finishedHabits.forEach(habit => { %>
             <li class="list-group-item">
-                <strong><%= habit.name %></strong> - <%= habit.frequency %>
-                <form action="/habit/<%= habit._id %>/undo" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-custom btn-sm">Undo</button>
-                </form>
-
-                <ul class="list-group mt-2">
-                    <% habit.subTasks.forEach(subTask => { %>
-                        <li class="list-group-item d-flex justify-content-between align-items-center completed-subtask">
-                            <%= subTask.name %>
-                            <form action="/habit/<%= habit._id %>/subtask/<%= subTask._id %>/undo" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-custom btn-sm">Undo</button>
-                            </form>
-                        </li>
-                    <% }) %>
-                </ul>
+              <strong><%= habit.name %></strong> - <%= habit.frequency %>
+              <!-- Undo button for each finished habit -->
+              <form action="/habit/<%= habit._id %>/undo" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-warning">Undo</button>
+              </form>
             </li>
-        <% }) %>
-    </ul>
+          <% }) %>
+        </ul>
+      <% } %>
 
-    <div class="mt-4">
-        <a href="/" class="btn-link-custom">Back to Home</a>
+      <!-- Finished Subtasks -->
+      <% if (finishedSubtasks.length > 0) { %>
+        <h2 class="mt-4">Finished Subtasks</h2>
+        <ul class="list-group">
+          <% finishedSubtasks.forEach(subTask => { %>
+            <li class="list-group-item">
+              <strong>Habit: <%= subTask.habitName %></strong> - Subtask: <%= subTask.name %>
+              <!-- Undo button for each finished subtask -->
+              <form action="/habit/<%= subTask.habitId %>/subtask/<%= subTask._id %>/undo" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-warning">Undo</button>
+              </form>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    <% } %>
+
+    <!-- Button to go back to Active Habits -->
+    <div class="mt-4 text-center">
+      <a href="/" class="btn btn-custom">Back to Active Habits</a>
     </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  </div>
 </body>
 </html>
